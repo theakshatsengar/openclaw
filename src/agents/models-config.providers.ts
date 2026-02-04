@@ -65,6 +65,17 @@ const QWEN_PORTAL_DEFAULT_COST = {
   cacheWrite: 0,
 };
 
+const GROQ_BASE_URL = "https://api.groq.com/openai/v1";
+const GROQ_DEFAULT_CONTEXT_WINDOW = 128000;
+const GROQ_DEFAULT_MAX_TOKENS = 8192;
+// Groq pricing (per 1M tokens as of 2024)
+const GROQ_DEFAULT_COST = {
+  input: 0.59, // $0.59 per 1M input tokens (average across models)
+  output: 0.79, // $0.79 per 1M output tokens (average across models)
+  cacheRead: 0,
+  cacheWrite: 0,
+};
+
 const OLLAMA_BASE_URL = "http://127.0.0.1:11434/v1";
 const OLLAMA_API_BASE_URL = "http://127.0.0.1:11434";
 const OLLAMA_DEFAULT_CONTEXT_WINDOW = 128000;
@@ -89,6 +100,195 @@ interface OllamaModel {
 
 interface OllamaTagsResponse {
   models: OllamaModel[];
+}
+
+interface GroqModel {
+  id: string;
+  object: string;
+  created: number;
+  owned_by: string;
+  active: boolean;
+  context_window: number;
+}
+
+interface GroqModelsResponse {
+  object: string;
+  data: GroqModel[];
+}
+
+// Groq model catalog with known models and their specifications
+const GROQ_MODEL_CATALOG = [
+  {
+    id: "llama-3.3-70b-versatile",
+    name: "Llama 3.3 70B Versatile",
+    reasoning: false,
+    input: ["text"],
+    contextWindow: 131072,
+    maxTokens: 32768,
+    cost: { input: 0.59, output: 0.79, cacheRead: 0, cacheWrite: 0 },
+  },
+  {
+    id: "llama-3.1-70b-versatile",
+    name: "Llama 3.1 70B Versatile",
+    reasoning: false,
+    input: ["text"],
+    contextWindow: 131072,
+    maxTokens: 32768,
+    cost: { input: 0.59, output: 0.79, cacheRead: 0, cacheWrite: 0 },
+  },
+  {
+    id: "llama-3.1-8b-instant",
+    name: "Llama 3.1 8B Instant",
+    reasoning: false,
+    input: ["text"],
+    contextWindow: 131072,
+    maxTokens: 8192,
+    cost: { input: 0.05, output: 0.08, cacheRead: 0, cacheWrite: 0 },
+  },
+  {
+    id: "llama3-70b-8192",
+    name: "Llama 3 70B",
+    reasoning: false,
+    input: ["text"],
+    contextWindow: 8192,
+    maxTokens: 8192,
+    cost: { input: 0.59, output: 0.79, cacheRead: 0, cacheWrite: 0 },
+  },
+  {
+    id: "llama3-8b-8192",
+    name: "Llama 3 8B",
+    reasoning: false,
+    input: ["text"],
+    contextWindow: 8192,
+    maxTokens: 8192,
+    cost: { input: 0.05, output: 0.08, cacheRead: 0, cacheWrite: 0 },
+  },
+  {
+    id: "mixtral-8x7b-32768",
+    name: "Mixtral 8x7B",
+    reasoning: false,
+    input: ["text"],
+    contextWindow: 32768,
+    maxTokens: 32768,
+    cost: { input: 0.24, output: 0.24, cacheRead: 0, cacheWrite: 0 },
+  },
+  {
+    id: "gemma2-9b-it",
+    name: "Gemma 2 9B IT",
+    reasoning: false,
+    input: ["text"],
+    contextWindow: 8192,
+    maxTokens: 8192,
+    cost: { input: 0.20, output: 0.20, cacheRead: 0, cacheWrite: 0 },
+  },
+  {
+    id: "gemma-7b-it",
+    name: "Gemma 7B IT",
+    reasoning: false,
+    input: ["text"],
+    contextWindow: 8192,
+    maxTokens: 8192,
+    cost: { input: 0.07, output: 0.07, cacheRead: 0, cacheWrite: 0 },
+  },
+] as const;
+
+async function discoverGroqModels(): Promise<ModelDefinitionConfig[]> {
+  // Skip Groq discovery in test environments
+  if (process.env.VITEST || process.env.NODE_ENV === "test") {
+    return GROQ_MODEL_CATALOG.map(model => ({
+      id: model.id,
+      name: model.name,
+      reasoning: model.reasoning,
+      input: model.input,
+      cost: model.cost,
+      contextWindow: model.contextWindow,
+      maxTokens: model.maxTokens,
+    }));
+  }
+
+  try {
+    // Try to discover models from Groq API
+    const groqApiKey = process.env.GROQ_API_KEY;
+    if (!groqApiKey) {
+      // Return static catalog if no API key
+      return GROQ_MODEL_CATALOG.map(model => ({
+        id: model.id,
+        name: model.name,
+        reasoning: model.reasoning,
+        input: model.input,
+        cost: model.cost,
+        contextWindow: model.contextWindow,
+        maxTokens: model.maxTokens,
+      }));
+    }
+
+    const response = await fetch(`${GROQ_BASE_URL}/models`, {
+      headers: {
+        'Authorization': `Bearer ${groqApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      signal: AbortSignal.timeout(5000),
+    });
+
+    if (!response.ok) {
+      console.warn(`Failed to discover Groq models: ${response.status}`);
+      // Fallback to static catalog
+      return GROQ_MODEL_CATALOG.map(model => ({
+        id: model.id,
+        name: model.name,
+        reasoning: model.reasoning,
+        input: model.input,
+        cost: model.cost,
+        contextWindow: model.contextWindow,
+        maxTokens: model.maxTokens,
+      }));
+    }
+
+    const data = (await response.json()) as GroqModelsResponse;
+    if (!data.data || data.data.length === 0) {
+      console.warn("No Groq models found via API");
+      // Fallback to static catalog
+      return GROQ_MODEL_CATALOG.map(model => ({
+        id: model.id,
+        name: model.name,
+        reasoning: model.reasoning,
+        input: model.input,
+        cost: model.cost,
+        contextWindow: model.contextWindow,
+        maxTokens: model.maxTokens,
+      }));
+    }
+
+    // Merge API discovery with static catalog for better metadata
+    return data.data
+      .filter(model => model.active)
+      .map((apiModel) => {
+        // Find matching model in catalog for better metadata
+        const catalogModel = GROQ_MODEL_CATALOG.find(m => m.id === apiModel.id);
+        
+        return {
+          id: apiModel.id,
+          name: catalogModel?.name || apiModel.id,
+          reasoning: catalogModel?.reasoning || false,
+          input: catalogModel?.input || ["text"],
+          cost: catalogModel?.cost || GROQ_DEFAULT_COST,
+          contextWindow: apiModel.context_window || catalogModel?.contextWindow || GROQ_DEFAULT_CONTEXT_WINDOW,
+          maxTokens: catalogModel?.maxTokens || GROQ_DEFAULT_MAX_TOKENS,
+        };
+      });
+  } catch (error) {
+    console.warn(`Failed to discover Groq models: ${String(error)}`);
+    // Fallback to static catalog
+    return GROQ_MODEL_CATALOG.map(model => ({
+      id: model.id,
+      name: model.name,
+      reasoning: model.reasoning,
+      input: model.input,
+      cost: model.cost,
+      contextWindow: model.contextWindow,
+      maxTokens: model.maxTokens,
+    }));
+  }
 }
 
 async function discoverOllamaModels(): Promise<ModelDefinitionConfig[]> {
@@ -385,6 +585,15 @@ async function buildVeniceProvider(): Promise<ProviderConfig> {
   };
 }
 
+async function buildGroqProvider(): Promise<ProviderConfig> {
+  const models = await discoverGroqModels();
+  return {
+    baseUrl: GROQ_BASE_URL,
+    api: "openai-completions",
+    models,
+  };
+}
+
 async function buildOllamaProvider(): Promise<ProviderConfig> {
   const models = await discoverOllamaModels();
   return {
@@ -451,6 +660,14 @@ export async function resolveImplicitProviders(params: {
     resolveApiKeyFromProfiles({ provider: "xiaomi", store: authStore });
   if (xiaomiKey) {
     providers.xiaomi = { ...buildXiaomiProvider(), apiKey: xiaomiKey };
+  }
+
+  // Groq provider
+  const groqKey =
+    resolveEnvApiKeyVarName("groq") ??
+    resolveApiKeyFromProfiles({ provider: "groq", store: authStore });
+  if (groqKey) {
+    providers.groq = { ...(await buildGroqProvider()), apiKey: groqKey };
   }
 
   // Ollama provider - only add if explicitly configured
