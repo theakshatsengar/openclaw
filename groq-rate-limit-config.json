@@ -1,0 +1,23 @@
+{
+  "groq": {
+    "freeTier": {
+      "tokensPerMinute": 12000,
+      "recommendedModels": [
+        "llama-3.1-8b-instant",
+        "llama3-8b-8192",
+        "gemma-7b-it",
+        "gemma2-9b-it"
+      ],
+      "maxTokensPerRequest": 4096
+    },
+    "paidTier": {
+      "tokensPerMinute": 100000,
+      "recommendedModels": [
+        "llama-3.3-70b-versatile",
+        "llama-3.1-70b-versatile",
+        "mixtral-8x7b-32768"
+      ],
+      "maxTokensPerRequest": 32768
+    }
+  }
+}

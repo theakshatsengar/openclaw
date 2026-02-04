@@ -117,42 +117,16 @@ interface GroqModelsResponse {
 }
 
 // Groq model catalog with known models and their specifications
+// Optimized for free tier limits (12K TPM)
 const GROQ_MODEL_CATALOG: ModelDefinitionConfig[] = [
   {
-    id: "llama-3.3-70b-versatile",
-    name: "Llama 3.3 70B Versatile",
-    reasoning: false,
-    input: ["text"],
-    contextWindow: 131072,
-    maxTokens: 32768,
-    cost: { input: 0.59, output: 0.79, cacheRead: 0, cacheWrite: 0 },
-  },
-  {
-    id: "llama-3.1-70b-versatile",
-    name: "Llama 3.1 70B Versatile",
-    reasoning: false,
-    input: ["text"],
-    contextWindow: 131072,
-    maxTokens: 32768,
-    cost: { input: 0.59, output: 0.79, cacheRead: 0, cacheWrite: 0 },
-  },
-  {
     id: "llama-3.1-8b-instant",
-    name: "Llama 3.1 8B Instant",
+    name: "Llama 3.1 8B Instant (Recommended for Free Tier)",
     reasoning: false,
     input: ["text"],
     contextWindow: 131072,
-    maxTokens: 8192,
+    maxTokens: 4096, // Reduced for free tier
     cost: { input: 0.05, output: 0.08, cacheRead: 0, cacheWrite: 0 },
-  },
-  {
-    id: "llama3-70b-8192",
-    name: "Llama 3 70B",
-    reasoning: false,
-    input: ["text"],
-    contextWindow: 8192,
-    maxTokens: 8192,
-    cost: { input: 0.59, output: 0.79, cacheRead: 0, cacheWrite: 0 },
   },
   {
     id: "llama3-8b-8192",
@@ -160,26 +134,8 @@ const GROQ_MODEL_CATALOG: ModelDefinitionConfig[] = [
     reasoning: false,
     input: ["text"],
     contextWindow: 8192,
-    maxTokens: 8192,
+    maxTokens: 4096, // Reduced for free tier
     cost: { input: 0.05, output: 0.08, cacheRead: 0, cacheWrite: 0 },
-  },
-  {
-    id: "mixtral-8x7b-32768",
-    name: "Mixtral 8x7B",
-    reasoning: false,
-    input: ["text"],
-    contextWindow: 32768,
-    maxTokens: 32768,
-    cost: { input: 0.24, output: 0.24, cacheRead: 0, cacheWrite: 0 },
-  },
-  {
-    id: "gemma2-9b-it",
-    name: "Gemma 2 9B IT",
-    reasoning: false,
-    input: ["text"],
-    contextWindow: 8192,
-    maxTokens: 8192,
-    cost: { input: 0.20, output: 0.20, cacheRead: 0, cacheWrite: 0 },
   },
   {
     id: "gemma-7b-it",
@@ -187,8 +143,53 @@ const GROQ_MODEL_CATALOG: ModelDefinitionConfig[] = [
     reasoning: false,
     input: ["text"],
     contextWindow: 8192,
-    maxTokens: 8192,
+    maxTokens: 4096, // Reduced for free tier
     cost: { input: 0.07, output: 0.07, cacheRead: 0, cacheWrite: 0 },
+  },
+  {
+    id: "gemma2-9b-it",
+    name: "Gemma 2 9B IT",
+    reasoning: false,
+    input: ["text"],
+    contextWindow: 8192,
+    maxTokens: 4096, // Reduced for free tier
+    cost: { input: 0.20, output: 0.20, cacheRead: 0, cacheWrite: 0 },
+  },
+  {
+    id: "mixtral-8x7b-32768",
+    name: "Mixtral 8x7B (Use with caution on free tier)",
+    reasoning: false,
+    input: ["text"],
+    contextWindow: 32768,
+    maxTokens: 2048, // Heavily reduced for free tier
+    cost: { input: 0.24, output: 0.24, cacheRead: 0, cacheWrite: 0 },
+  },
+  {
+    id: "llama3-70b-8192",
+    name: "Llama 3 70B (Paid tier recommended)",
+    reasoning: false,
+    input: ["text"],
+    contextWindow: 8192,
+    maxTokens: 1024, // Very limited for free tier
+    cost: { input: 0.59, output: 0.79, cacheRead: 0, cacheWrite: 0 },
+  },
+  {
+    id: "llama-3.1-70b-versatile",
+    name: "Llama 3.1 70B Versatile (Paid tier recommended)",
+    reasoning: false,
+    input: ["text"],
+    contextWindow: 131072,
+    maxTokens: 1024, // Very limited for free tier
+    cost: { input: 0.59, output: 0.79, cacheRead: 0, cacheWrite: 0 },
+  },
+  {
+    id: "llama-3.3-70b-versatile",
+    name: "Llama 3.3 70B Versatile (Paid tier recommended)",
+    reasoning: false,
+    input: ["text"],
+    contextWindow: 131072,
+    maxTokens: 1024, // Very limited for free tier
+    cost: { input: 0.59, output: 0.79, cacheRead: 0, cacheWrite: 0 },
   },
 ];
 

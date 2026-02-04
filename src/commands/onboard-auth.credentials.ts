@@ -128,7 +128,7 @@ export async function setGroqApiKey(key: string, agentDir?: string) {
 
 export const ZAI_DEFAULT_MODEL_REF = "zai/glm-4.7";
 export const XIAOMI_DEFAULT_MODEL_REF = "xiaomi/mimo-v2-flash";
-export const GROQ_DEFAULT_MODEL_REF = "groq/llama-3.1-70b-versatile";
+export const GROQ_DEFAULT_MODEL_REF = "groq/llama-3.1-8b-instant";
 export const OPENROUTER_DEFAULT_MODEL_REF = "openrouter/auto";
 export const VERCEL_AI_GATEWAY_DEFAULT_MODEL_REF = "vercel-ai-gateway/anthropic/claude-opus-4.5";
 

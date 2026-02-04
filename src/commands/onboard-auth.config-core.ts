@@ -544,7 +544,7 @@ export function applyGroqProviderConfig(cfg: OpenClawConfig): OpenClawConfig {
   const models = { ...cfg.agents?.defaults?.models };
   models[GROQ_DEFAULT_MODEL_REF] = {
     ...models[GROQ_DEFAULT_MODEL_REF],
-    alias: models[GROQ_DEFAULT_MODEL_REF]?.alias ?? "Llama 3.1 70B",
+    alias: models[GROQ_DEFAULT_MODEL_REF]?.alias ?? "Llama 3.1 8B",
   };
 
   return {
