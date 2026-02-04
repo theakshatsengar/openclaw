@@ -21,7 +21,8 @@ export type AuthChoiceGroupId =
   | "minimax"
   | "synthetic"
   | "venice"
-  | "qwen";
+  | "qwen"
+  | "groq";
 
 export type AuthChoiceGroup = {
   value: AuthChoiceGroupId;
@@ -47,6 +48,12 @@ const AUTH_CHOICE_GROUP_DEFS: {
     label: "Anthropic",
     hint: "setup-token + API key",
     choices: ["token", "apiKey"],
+  },
+  {
+    value: "groq",
+    label: "Groq",
+    hint: "Fast inference with Llama, Mixtral, Gemma",
+    choices: ["groq-api-key"],
   },
   {
     value: "minimax",
@@ -141,6 +148,7 @@ export function buildAuthChoiceOptions(params: {
   });
   options.push({ value: "chutes", label: "Chutes (OAuth)" });
   options.push({ value: "openai-api-key", label: "OpenAI API key" });
+  options.push({ value: "groq-api-key", label: "Groq API key", hint: "Fast inference with Llama, Mixtral, Gemma models" });
   options.push({ value: "openrouter-api-key", label: "OpenRouter API key" });
   options.push({
     value: "ai-gateway-api-key",

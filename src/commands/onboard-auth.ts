@@ -5,6 +5,8 @@ export {
 export { VENICE_DEFAULT_MODEL_ID, VENICE_DEFAULT_MODEL_REF } from "../agents/venice-models.js";
 export {
   applyAuthProfileConfig,
+  applyGroqConfig,
+  applyGroqProviderConfig,
   applyKimiCodeConfig,
   applyKimiCodeProviderConfig,
   applyMoonshotConfig,
@@ -37,9 +39,11 @@ export {
   applyOpencodeZenProviderConfig,
 } from "./onboard-auth.config-opencode.js";
 export {
+  GROQ_DEFAULT_MODEL_REF,
   OPENROUTER_DEFAULT_MODEL_REF,
   setAnthropicApiKey,
   setGeminiApiKey,
+  setGroqApiKey,
   setKimiCodingApiKey,
   setMinimaxApiKey,
   setMoonshotApiKey,

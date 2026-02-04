@@ -117,7 +117,7 @@ interface GroqModelsResponse {
 }
 
 // Groq model catalog with known models and their specifications
-const GROQ_MODEL_CATALOG = [
+const GROQ_MODEL_CATALOG: ModelDefinitionConfig[] = [
   {
     id: "llama-3.3-70b-versatile",
     name: "Llama 3.3 70B Versatile",
@@ -190,20 +190,12 @@ const GROQ_MODEL_CATALOG = [
     maxTokens: 8192,
     cost: { input: 0.07, output: 0.07, cacheRead: 0, cacheWrite: 0 },
   },
-] as const;
+];
 
 async function discoverGroqModels(): Promise<ModelDefinitionConfig[]> {
   // Skip Groq discovery in test environments
   if (process.env.VITEST || process.env.NODE_ENV === "test") {
-    return GROQ_MODEL_CATALOG.map(model => ({
-      id: model.id,
-      name: model.name,
-      reasoning: model.reasoning,
-      input: model.input,
-      cost: model.cost,
-      contextWindow: model.contextWindow,
-      maxTokens: model.maxTokens,
-    }));
+    return [...GROQ_MODEL_CATALOG];
   }
 
   try {
@@ -211,15 +203,7 @@ async function discoverGroqModels(): Promise<ModelDefinitionConfig[]> {
     const groqApiKey = process.env.GROQ_API_KEY;
     if (!groqApiKey) {
       // Return static catalog if no API key
-      return GROQ_MODEL_CATALOG.map(model => ({
-        id: model.id,
-        name: model.name,
-        reasoning: model.reasoning,
-        input: model.input,
-        cost: model.cost,
-        contextWindow: model.contextWindow,
-        maxTokens: model.maxTokens,
-      }));
+      return [...GROQ_MODEL_CATALOG];
     }
 
     const response = await fetch(`${GROQ_BASE_URL}/models`, {
@@ -233,30 +217,14 @@ async function discoverGroqModels(): Promise<ModelDefinitionConfig[]> {
     if (!response.ok) {
       console.warn(`Failed to discover Groq models: ${response.status}`);
       // Fallback to static catalog
-      return GROQ_MODEL_CATALOG.map(model => ({
-        id: model.id,
-        name: model.name,
-        reasoning: model.reasoning,
-        input: model.input,
-        cost: model.cost,
-        contextWindow: model.contextWindow,
-        maxTokens: model.maxTokens,
-      }));
+      return [...GROQ_MODEL_CATALOG];
     }
 
     const data = (await response.json()) as GroqModelsResponse;
     if (!data.data || data.data.length === 0) {
       console.warn("No Groq models found via API");
       // Fallback to static catalog
-      return GROQ_MODEL_CATALOG.map(model => ({
-        id: model.id,
-        name: model.name,
-        reasoning: model.reasoning,
-        input: model.input,
-        cost: model.cost,
-        contextWindow: model.contextWindow,
-        maxTokens: model.maxTokens,
-      }));
+      return [...GROQ_MODEL_CATALOG];
     }
 
     // Merge API discovery with static catalog for better metadata
@@ -279,15 +247,7 @@ async function discoverGroqModels(): Promise<ModelDefinitionConfig[]> {
   } catch (error) {
     console.warn(`Failed to discover Groq models: ${String(error)}`);
     // Fallback to static catalog
-    return GROQ_MODEL_CATALOG.map(model => ({
-      id: model.id,
-      name: model.name,
-      reasoning: model.reasoning,
-      input: model.input,
-      cost: model.cost,
-      contextWindow: model.contextWindow,
-      maxTokens: model.maxTokens,
-    }));
+    return [...GROQ_MODEL_CATALOG];
   }
 }
 
